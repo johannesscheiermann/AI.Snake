@@ -1,7 +1,9 @@
+import Board from './Board'
+
 function App() {
     return (
         <div className="App">
-            Snake game in development ...
+            <Board dimensions={{width: 16, height: 16}}/>
         </div>
     )
 }
