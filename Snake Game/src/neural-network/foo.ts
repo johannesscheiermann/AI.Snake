@@ -1,9 +1,12 @@
 // const initRandom = (rowIndex: number, colIndex: number) => Math.random() //- 0.5
-const initRandom = (rowIndex: number, colIndex: number) => {
-    const stdDev = 1 / Math.sqrt(colIndex +1)
-    const h = Math.random() * stdDev * 2 - stdDev
-    return h
-}
+// const initRandom = (rowIndex: number, colIndex: number) => {
+//     const stdDev = 1 / Math.sqrt(colIndex +1)
+//     const h = Math.random() * stdDev * 2 - stdDev
+//     return h
+// }
+const a = Math.sqrt(6 / (2 + 2));
+const initRandom = (rowIndex: number, colIndex: number) => Math.random() * (a + a) -a;
+
 
 export class NeuralNetwork {
     private readonly weights: number[][][]
@@ -14,12 +17,40 @@ export class NeuralNetwork {
         this.weights = []
         this.biases = []
 
-        for (let i = 0; i < this.hiddenLayerSizes.length + 1; i++) {
-            const numIn = i === 0 ? inputLayerSize : hiddenLayerSizes[i - 1]
-            const numOut = i === hiddenLayerSizes.length ? outputLayerSize : hiddenLayerSizes[i]
-            this.weights.push(this.initMatrix(numIn, numOut, initRandom))
-            this.biases.push(this.initMatrix(1, numOut, initRandom))
+        // for (let i = 0; i < this.hiddenLayerSizes.length + 1; i++) {
+        //     const numIn = i === 0 ? inputLayerSize : hiddenLayerSizes[i - 1]
+        //     const numOut = i === hiddenLayerSizes.length ? outputLayerSize : hiddenLayerSizes[i]
+        //     this.weights.push(this.initMatrix(numIn, numOut, initRandom))
+        //     this.biases.push(this.initMatrix(1, numOut, initRandom))
+        // }
+
+        /// TODO XAVIER Initialization
+        const sizes = [inputLayerSize, ...hiddenLayerSizes, outputLayerSize]
+        // Initialize weights and biases for each layer
+        for (let i = 1; i < sizes.length; i++) {
+            const prevSize = sizes[i - 1];
+            const currSize = sizes[i];
+
+            const stdDev = Math.sqrt(1 / prevSize);
+            const layerWeights = [];
+            for (let k = 0; k < prevSize; k++) {
+                const neuronWeights = [];
+                for (let j = 0; j < currSize; j++) {
+                    neuronWeights.push(Math.random() * stdDev * 2 - stdDev);
+                }
+                layerWeights.push(neuronWeights);
+            }
+            this.weights.push(layerWeights);
+
+            const layerBiases = [];
+            for (let j = 0; j < currSize; j++) {
+                layerBiases.push(Math.random() * 2 - 1);
+            }
+            this.biases.push([layerBiases]);
         }
+        console.log(this.weights)
+        console.log(this.biases)
+
     }
 
     // Forward pass
