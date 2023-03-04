@@ -12,6 +12,7 @@ import {GameAgentProvider} from './contexts/GameAgentContext'
 import Game from './components/game/Game'
 import {AgentOption} from './models/AgentOption'
 import {GameActionProvider} from './contexts/GameActionContext'
+import {NeuralNetwork} from './neural-network/foo'
 
 const StyledApp = styled.div`
   height: 100vh;
@@ -51,6 +52,25 @@ function App() {
     return <StyledApp>
         <GlobalStyle/>
         <h1>AI.Snake</h1>
+        <button onClick={() => {
+            const trainingData = {input: [[0, 0], [0, 1], [1, 0], [1, 1]], output: [[0], [1], [1], [0]]}
+
+            // Create the neural network
+            const net = new NeuralNetwork(2, [2], 1)
+
+            // Train the network on the training data
+            for (let i = 0; i < 50000; i++) {
+                net.train(trainingData.input, trainingData.output, 0.5)
+            }
+
+            // Test the network on some new data
+            console.log(net.predict([0, 0])) // Should output [0]
+            console.log(net.predict([0, 1])) // Should output [1]
+            console.log(net.predict([1, 0])) // Should output [1]
+            console.log(net.predict([1, 1])) // Should output [0]
+        }
+        }>hu
+        </button>
         <GameAgentProvider>
             <GameConfiguration agentOptions={agentOptions}/>
             <GameStateProvider dimensions={dimensions} random={random}>
