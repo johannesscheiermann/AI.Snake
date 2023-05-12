@@ -1,16 +1,17 @@
 import {Agent} from './Agent'
 import {SnakeGameState} from '../game-logic/SnakeGameState'
-import {Dimensions} from '../game-logic/Dimensions'
 import {Tile} from '../game-logic/BoardState'
 import {Direction} from '../game-logic/Direction'
 import {SnakeGameAction} from '../game-logic/SnakeGameAction'
-import {Random} from '../game-logic/Random'
+import {Random} from '../models/Random'
+import {Dimensions} from '../models/Dimensions'
 
 export class RandomPossibleActionAgent implements Agent {
     constructor(private readonly dimensions: Dimensions, private readonly random: Random) {
     }
 
     updateNextGameAction(gameState: SnakeGameState, updateGameAction: (gameAction: SnakeGameAction) => void): (() => void) | void {
+        console.log("hallo")
         const possibleGameActions = this.possibleGameActionsFor(gameState)
 
         if (possibleGameActions.length > 0) {

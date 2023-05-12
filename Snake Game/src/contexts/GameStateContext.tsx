@@ -51,7 +51,7 @@ function gameStateReducer(
     }
 }
 
-function initialGameState(dimensions: Dimensions, random: Random): SnakeGameState {
+export function initialGameState(dimensions: Dimensions, random: Random): SnakeGameState {
     return new DefaultSnakeGameState(
         dimensions,
         ({y, x}) => x === 0 || x === dimensions.width - 1 || y === 0 || y === dimensions.height - 1,

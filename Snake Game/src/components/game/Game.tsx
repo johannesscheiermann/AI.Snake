@@ -1,8 +1,11 @@
-import React, {useEffect, useRef} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import {useGameState, useGameStateDispatch} from '../../contexts/GameStateContext'
 import Board from './board/Board'
 import {useGameAgent} from '../../contexts/GameAgentContext'
 import {useGameAction, useGameActionDispatch} from '../../contexts/GameActionContext'
+import {nnInputFor} from '../../neural-network/qLearning'
+import {AugmentedState} from '../../game-logic/SnakeGameState'
+import {xd} from '../../App'
 
 interface GameProps {
     moveTimeMilliseconds: number
@@ -33,16 +36,42 @@ function Game(props: GameProps) {
     }, [nextAction])
 
     const gameStateDispatch = useGameStateDispatch()
+
+    const [weiter, setWeiter] = useState<boolean>(false)
+    const refWeiter = useRef(weiter)
+    refWeiter.current = weiter
+
+
     useEffect(() => {
         const intervalId = setInterval(
-            () => gameStateDispatch({
-                type: 'game_action_performed',
-                gameAction: nextActionRef.current
-            }),
+            () => {
+                if (weiter) {
+                    setWeiter(false)
+                    gameStateDispatch({
+                        type: 'game_action_performed',
+                        gameAction: nextActionRef.current
+                    })
+                    // console.log(xd(nnInputFor(new AugmentedState(gameState!),nextAction,gameState?.dimensions.height!)))
+                } else if(!gameState?.gameStarted){
+                    // console.log(xd(nnInputFor(new AugmentedState(gameState!),nextAction,gameState?.dimensions.height!)))
+
+                }
+            },
             props.moveTimeMilliseconds
         )
         return () => clearInterval(intervalId)
-    }, [gameStateDispatch, props.moveTimeMilliseconds])
+    }, [gameStateDispatch, props.moveTimeMilliseconds, weiter])
+
+
+    useEffect(
+        () => {
+            window.addEventListener('keyup', e => {
+                if (e.key === 'Enter') {
+                    setWeiter(true)
+                }
+            })
+        }, []
+    )
 
     return <Board/>
 }

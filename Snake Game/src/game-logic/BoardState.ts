@@ -9,7 +9,8 @@ export enum Tile {
     Wall,
     Snake,
     Food,
-    FreeSpace
+    FreeSpace,
+    Void
 }
 
 export interface BoardState {
@@ -18,13 +19,14 @@ export interface BoardState {
     tileAt(coordinate: Coordinate): Tile
 
     move(direction: Direction): { boardState: BoardState; enteredTile: Tile }
+    food?: Coordinate
 }
 
 export class AsBoardState implements BoardState {
 
     private readonly lazySnake: Lazy<Snake>
     private readonly lazyTiles: Lazy<Tile[][]>
-    private food?: Coordinate
+     food?: Coordinate
 
     constructor(
         private readonly dimensions: Dimensions,
@@ -79,6 +81,8 @@ export class AsBoardState implements BoardState {
                 return tiles
             }
         )
+
+        const e = this.lazyTiles.value
     }
 
     public get snake(): Snake {

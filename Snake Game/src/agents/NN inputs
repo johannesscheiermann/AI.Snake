@@ -1,0 +1,89 @@
+In welche Richtung bewege ich nmich ? 4 inputs
+In alle 8 Richtungen, wie viele Blöcke weit ist frei? (normalisieren) 8 inputs
+In alle 8 Richtungen, nach dieser Anzahl Blöcken, was finde ich dort? (Wand,Snake,Food) 3*8 Inputs
+X von Kopf (normalisiert) 1 Inputs
+Y von Kopf (normalisiert)1 Inputs
+X von Food (normalisiert) 1 Inputs
+Y von Food (normalisiert)1 Inputs
++ 4 inputs für die möglichen 4 actions
+
+16+24class NeuralNetwork {
+       constructor(numInputs, hiddenLayerSizes, numOutputs) {
+         this.numInputs = numInputs;
+         this.hiddenLayerSizes = hiddenLayerSizes;
+         this.numOutputs = numOutputs;
+
+         // Initialize weights and biases
+         this.weights = [];
+         this.biases = [];
+         for (let i = 0; i < this.hiddenLayerSizes.length + 1; i++) {
+           const numIn = i === 0 ? numInputs : hiddenLayerSizes[i - 1];
+           const numOut = i === hiddenLayerSizes.length ? numOutputs : hiddenLayerSizes[i];
+           this.weights.push(this.randomMatrix(numIn, numOut));
+           this.biases.push(this.randomMatrix(1, numOut));
+         }
+       }
+
+       // Forward pass
+       predict(inputs) {
+         let activations = inputs;
+         for (let i = 0; i < this.hiddenLayerSizes.length + 1; i++) {
+           const weights = this.weights[i];
+           const biases = this.biases[i];
+           const hidden = this.sigmoid(this.matrixAdd(this.matrixMultiply(activations, weights), biases));
+           activations = hidden;
+         }
+         return activations;
+       }
+
+       // Train the network using backpropagation
+       train(inputs, targets, learningRate) {
+         let activations = [inputs];
+         for (let i = 0; i < this.hiddenLayerSizes.length + 1; i++) {
+           const weights = this.weights[i];
+           const biases = this.biases[i];
+           const hidden = this.sigmoid(this.matrixAdd(this.matrixMultiply(activations[i], weights), biases));
+           activations.push(hidden);
+         }
+
+         // Compute output error
+         const outputError = this.matrixSubtract(targets, activations[activations.length - 1]);
+         const outputDelta = this.matrixMultiply(outputError, this.sigmoidDerivative(activations[activations.length - 1]));
+
+         // Backpropagate error
+         let delta = outputDelta;
+         for (let i = this.hiddenLayerSizes.length; i >= 0; i--) {
+           const hidden = activations[i];
+           const weights = this.weights[i];
+           const hiddenDelta = this.matrixMultiply(delta, this.transpose(weights));
+           delta = this.matrixMultiply(hiddenDelta, this.sigmoidDerivative(hidden));
+
+           // Update weights and biases
+           this.weights[i] = this.matrixAdd(weights, this.matrixMultiply(this.transpose(hidden), this.matrixMultiply(delta, learningRate)));
+           this.biases[i] = this.matrixAdd(biases, this.matrixMultiply(delta, learningRate));
+         }
+       }
+
+       // Helper functions for matrix operations
+       randomMatrix(rows, cols) {
+         return Array(rows).fill().map(() => Array(cols).fill().map(() => Math.random() - 0.5));
+       }
+
+       matrixAdd(a, b) {
+         return a.map((row, i) => row.map((val, j) => val + b[i][j]));
+       }
+
+       matrixSubtract(a, b) {
+         return a.map((row, i) => row.map((val, j) => val - b[i][j]));
+       }
+
+       matrixMultiply(a, b) {
+         return a.map((row) => {
+           return Array(b[0].length).fill().map((_, j) => {
+             return b.reduce((sum, _, k) => sum + row[k] * b[k][j], 0);
+           });
+         });
+       }
+
+       transpose(a) {
+
